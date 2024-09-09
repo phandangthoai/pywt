@@ -208,10 +208,11 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
             # restore original data shape and axis position
             coef = coef.reshape(data_shape_pre)
             coef = coef.swapaxes(axis, -1)
-        out[i, ...] = coef
+        # out[i, ...] = coef
 
     frequencies = scale2frequency(wavelet, scales, precision)
     if np.isscalar(frequencies):
         frequencies = np.array([frequencies])
     frequencies /= sampling_period
-    return out, frequencies
+    # return coef, frequencies
+    return coef, frequencies
