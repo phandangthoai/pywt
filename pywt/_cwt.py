@@ -34,7 +34,7 @@ except ImportError:
         return 2**ceil(np.log2(n))
 
 
-def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
+def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, translation=1):
     """
     cwt(data, scales, wavelet)
 
@@ -148,6 +148,8 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
         data_shape_pre = data.shape
         data = data.reshape((-1, data.shape[-1]))
 
+    out_dim = int(len(data)/translation)
+    data_row = np.zeros(out_dim)
     for i, scale in enumerate(scales):
         step = x[1] - x[0]
         j = np.arange(scale * (x[-1] - x[0]) + 1) / (scale * step)
@@ -158,7 +160,15 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
 
         if method == 'conv':
             if data.ndim == 1:
-                conv = np.convolve(data, int_psi_scale)
+                for stepIdx in np.arange(0, out_dim):
+                    temp = 0
+                    for psiIdx in np.arange(0, len(int_psi_scale)):
+                        if stepIdx+psiIdx >= len(data):
+                            break
+                        temp = temp + data[stepIdx+psiIdx]*int_psi_scale[psiIdx]
+                    data_row[stepIdx] = temp
+                # conv = np.convolve(data, int_psi_scale)
+                conv = data_row
             else:
                 # batch convolution via loop
                 conv_shape = list(data.shape)
