@@ -197,7 +197,8 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
         if out.dtype.kind != 'c':
             coef = coef.real
         # transform axis is always -1 due to the data reshape above
-        d = (coef.shape[-1] - data.shape[-1]) / 2.
+        # d = (coef.shape[-1] - data.shape[-1]) / 2.
+        d = (coef.shape[-1] - conv.shape[-1]) / 2.
         if d > 0:
             coef = coef[..., floor(d):-ceil(d)]
         elif d < 0:
