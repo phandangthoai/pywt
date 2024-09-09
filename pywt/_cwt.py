@@ -201,7 +201,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
         d = (coef.shape[-1] - conv.shape[-1]) / 2.
         if d > 0:
             coef = coef[..., floor(d):-ceil(d)]
-        elif d < 0:
+        # elif d < 0:
             # raise ValueError(
             #     f"Selected scale of {scale} too small.")
         if data.ndim > 1:
