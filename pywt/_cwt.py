@@ -172,7 +172,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
                 # conv = np.convolve(data, int_psi_scale)
                 
                 # conv = data_row
-                print("conv len", len(conv))
+                # print("conv len", len(conv))
         #     else:
         #         # batch convolution via loop
         #         conv_shape = list(data.shape)
@@ -198,7 +198,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
             # conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
 
         coef1 = - np.sqrt(scale) * np.diff(conv, axis=-1)
-        print("coef1 len", len(coef1))
+        # print("coef1 len", len(coef1))
         # if out.dtype.kind != 'c':
         #     coef = coef.real
         # transform axis is always -1 due to the data reshape above
@@ -212,6 +212,6 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
     frequencies /= sampling_period
     # return coef, frequencies
     # return out, frequencies
-    print("out len", len(out))
+    # print("out len", len(out))
     # return out
     return 11
