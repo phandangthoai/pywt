@@ -125,7 +125,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
 
     dt_out = dt_cplx if wavelet.complex_cwt else dt
     # out = np.empty((np.size(scales),) + data.shape, dtype=dt_out)
-    out = np.empty((np.size(scales),) + int(data.shape/translation), dtype=dt_out)
+    out = np.empty((np.size(scales),) + int(len(data)/translation), dtype=dt_out)
     precision = 10
     int_psi, x = integrate_wavelet(wavelet, precision=precision)
     int_psi = np.conj(int_psi) if wavelet.complex_cwt else int_psi
