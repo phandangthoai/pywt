@@ -126,7 +126,9 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
     dt_out = dt_cplx if wavelet.complex_cwt else dt
     # out = np.empty((np.size(scales),) + data.shape, dtype=dt_out)
     # out = np.empty((np.size(scales),) + int(len(data)/translation), dtype=dt_out)
-    out = np.zeros((len(scales), int(len(data)/translation)))
+    out_dim = int(len(data)/translation)
+    data_row = np.zeros(out_dim)
+    out = np.zeros((len(scales), out_dim))
     precision = 10
     int_psi, x = integrate_wavelet(wavelet, precision=precision)
     int_psi = np.conj(int_psi) if wavelet.complex_cwt else int_psi
@@ -150,8 +152,8 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
         data_shape_pre = data.shape
         data = data.reshape((-1, data.shape[-1]))
 
-    out_dim = int(len(data)/translation)
-    data_row = np.zeros(out_dim)
+    # out_dim = int(len(data)/translation)
+    # data_row = np.zeros(out_dim)
     for i, scale in enumerate(scales):
         step = x[1] - x[0]
         j = np.arange(scale * (x[-1] - x[0]) + 1) / (scale * step)
@@ -171,7 +173,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
                     data_row[stepIdx] = temp
                 # conv = np.convolve(data, int_psi_scale)
                 
-                # conv = data_row
+                conv = data_row
                 # print("conv len", len(conv))
         #     else:
         #         # batch convolution via loop
@@ -197,14 +199,14 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
             # conv = fftmodule.ifft(fft_wav * fft_data, axis=-1)
             # conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
 
-        # coef1 = - np.sqrt(scale) * np.diff(conv, axis=-1)
+        coef1 = - np.sqrt(scale) * np.diff(conv, axis=-1)
         # print("coef1 len", len(coef1))
         # if out.dtype.kind != 'c':
         #     coef = coef.real
         # transform axis is always -1 due to the data reshape above
         
         
-        # out[i] = coef1
+        out[i] = coef1
 
     frequencies = scale2frequency(wavelet, scales, precision)
     if np.isscalar(frequencies):
@@ -213,5 +215,5 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
     # return coef, frequencies
     # return out, frequencies
     # print("out len", len(out))
-    # return out
-    return 11
+    return out
+    # return 11
