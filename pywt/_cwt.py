@@ -207,7 +207,8 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
             #     f"Selected scale of {scale} too small.")
         if data.ndim > 1:
             # restore original data shape and axis position
-            coef = coef.reshape(data_shape_pre)
+            # coef = coef.reshape(data_shape_pre)
+            coef = coef.reshape(int(len(data_shape_pre)/translation))
             coef = coef.swapaxes(axis, -1)
         out[i, ...] = coef
 
