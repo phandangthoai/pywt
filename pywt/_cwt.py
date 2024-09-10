@@ -207,4 +207,5 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
         frequencies = np.array([frequencies])
     frequencies /= sampling_period
     # return coef, frequencies
-    return out, frequencies
+    # return out, frequencies
+    return out
