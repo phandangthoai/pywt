@@ -126,7 +126,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
     dt_out = dt_cplx if wavelet.complex_cwt else dt
     # out = np.empty((np.size(scales),) + data.shape, dtype=dt_out)
     # out = np.empty((np.size(scales),) + int(len(data)/translation), dtype=dt_out)
-    out = np.zeros((len(scale), 1001+int(len(data)/translation)))
+    out = np.zeros((len(scale), int(len(data)/translation)))
     precision = 10
     int_psi, x = integrate_wavelet(wavelet, precision=precision)
     int_psi = np.conj(int_psi) if wavelet.complex_cwt else int_psi
@@ -171,37 +171,37 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
                     data_row[stepIdx] = temp
                 # conv = np.convolve(data, int_psi_scale)
                 conv = data_row
-            else:
-                # batch convolution via loop
-                conv_shape = list(data.shape)
-                conv_shape[-1] += int_psi_scale.size - 1
-                conv_shape = tuple(conv_shape)
-                conv = np.empty(conv_shape, dtype=dt_out)
-                for n in range(data.shape[0]):
-                    conv[n, :] = np.convolve(data[n], int_psi_scale)
-        else:
+        #     else:
+        #         # batch convolution via loop
+        #         conv_shape = list(data.shape)
+        #         conv_shape[-1] += int_psi_scale.size - 1
+        #         conv_shape = tuple(conv_shape)
+        #         conv = np.empty(conv_shape, dtype=dt_out)
+        #         for n in range(data.shape[0]):
+        #             conv[n, :] = np.convolve(data[n], int_psi_scale)
+        # else:
             # The padding is selected for:
             # - optimal FFT complexity
             # - to be larger than the two signals length to avoid circular
             #   convolution
-            size_scale = next_fast_len(
-                data.shape[-1] + int_psi_scale.size - 1
-            )
-            if size_scale != size_scale0:
-                # Must recompute fft_data when the padding size changes.
-                fft_data = fftmodule.fft(data, size_scale, axis=-1)
-            size_scale0 = size_scale
-            fft_wav = fftmodule.fft(int_psi_scale, size_scale, axis=-1)
-            conv = fftmodule.ifft(fft_wav * fft_data, axis=-1)
-            conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
+            # size_scale = next_fast_len(
+            #     data.shape[-1] + int_psi_scale.size - 1
+            # )
+            # if size_scale != size_scale0:
+            #     # Must recompute fft_data when the padding size changes.
+            #     fft_data = fftmodule.fft(data, size_scale, axis=-1)
+            # size_scale0 = size_scale
+            # fft_wav = fftmodule.fft(int_psi_scale, size_scale, axis=-1)
+            # conv = fftmodule.ifft(fft_wav * fft_data, axis=-1)
+            # conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
 
-        coef = - np.sqrt(scale) * np.diff(conv, axis=-1)
-        if out.dtype.kind != 'c':
-            coef = coef.real
+        coef1 = - np.sqrt(scale) * np.diff(conv, axis=-1)
+        # if out.dtype.kind != 'c':
+        #     coef = coef.real
         # transform axis is always -1 due to the data reshape above
         
         
-        out[i, ...] = coef
+        out[i, ...] = coef1
 
     frequencies = scale2frequency(wavelet, scales, precision)
     if np.isscalar(frequencies):
