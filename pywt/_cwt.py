@@ -197,7 +197,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
             # conv = fftmodule.ifft(fft_wav * fft_data, axis=-1)
             # conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
 
-        coef1 = - np.sqrt(scale) * np.diff(conv, axis=-1)
+        # coef1 = - np.sqrt(scale) * np.diff(conv, axis=-1)
         # print("coef1 len", len(coef1))
         # if out.dtype.kind != 'c':
         #     coef = coef.real
