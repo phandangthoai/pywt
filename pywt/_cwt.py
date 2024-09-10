@@ -171,7 +171,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
                     data_row[stepIdx] = temp
                 # conv = np.convolve(data, int_psi_scale)
                 
-                conv = data_row
+                # conv = data_row
                 print("conv len", len(conv))
         #     else:
         #         # batch convolution via loop
@@ -213,4 +213,5 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
     # return coef, frequencies
     # return out, frequencies
     print("out len", len(out))
-    return out
+    # return out
+    return 11
