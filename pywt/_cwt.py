@@ -204,7 +204,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
         # transform axis is always -1 due to the data reshape above
         
         
-        out[i] = coef1
+        # out[i] = coef1
 
     frequencies = scale2frequency(wavelet, scales, precision)
     if np.isscalar(frequencies):
