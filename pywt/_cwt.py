@@ -198,18 +198,8 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1, trans
         if out.dtype.kind != 'c':
             coef = coef.real
         # transform axis is always -1 due to the data reshape above
-        # d = (coef.shape[-1] - data.shape[-1]) / 2.
-        d = (coef.shape[-1] - conv.shape[-1]) / 2.
-        if d > 0:
-            coef = coef[..., floor(d):-ceil(d)]
-        # elif d < 0:
-            # raise ValueError(
-            #     f"Selected scale of {scale} too small.")
-        # if data.ndim > 1:
-            # restore original data shape and axis position
-            # coef = coef.reshape(data_shape_pre)
-            # coef = coef.reshape(int(len(data_shape_pre)/translation))
-            # coef = coef.swapaxes(axis, -1)
+        
+        
         out[i, ...] = coef
 
     frequencies = scale2frequency(wavelet, scales, precision)
