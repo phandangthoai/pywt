@@ -34,7 +34,7 @@ except ImportError:
         return 2**ceil(np.log2(n))
 
 
-def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
+def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', axis=-1):
     """
     cwt(data, scales, wavelet)
 
@@ -197,7 +197,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
             # restore original data shape and axis position
             coef = coef.reshape(data_shape_pre)
             coef = coef.swapaxes(axis, -1)
-        out[i, ...] = coef
+        out[i, ...] = coef[::hop_size]
 
     frequencies = scale2frequency(wavelet, scales, precision)
     if np.isscalar(frequencies):
