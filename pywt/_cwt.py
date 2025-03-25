@@ -195,9 +195,11 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
                 f"Selected scale of {scale} too small.")
         if data.ndim > 1:
             # restore original data shape and axis position
+            
             coef = coef.reshape(data_shape_pre)
             coef = coef.swapaxes(axis, -1)
-        out[i, ...] = coef[i, ::hop_size]
+        coef = coef[::hop_size]    
+        out[i, ...] = coef
 
     frequencies = scale2frequency(wavelet, scales, precision)
     if np.isscalar(frequencies):
