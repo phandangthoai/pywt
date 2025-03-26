@@ -184,8 +184,10 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
             conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
 
         coef = - np.sqrt(scale) * np.diff(conv, axis=-1)
-        # Apply time downsampling
-        coef = coef[..., ::hop_size]  # Selecting every `hop_size`-th sample
+        # Apply time downsampling only if the output length is still valid
+        if coef.shape[-1] >= downsample_factor:
+            coef = coef[..., ::downsample_factor]  # Downsample in time
+
 
         if out.dtype.kind != 'c':
             coef = coef.real
