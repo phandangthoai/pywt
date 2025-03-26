@@ -201,7 +201,6 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
             
             coef = coef.reshape(data_shape_pre)
             coef = coef.swapaxes(axis, -1)
-       "" coef = coef[::hop_size]    ""
         out[i, ...] = coef
 
     frequencies = scale2frequency(wavelet, scales, precision)
