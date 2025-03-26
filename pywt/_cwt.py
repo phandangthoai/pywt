@@ -184,13 +184,27 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
             conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
 
         coef = - np.sqrt(scale) * np.diff(conv, axis=-1)
-        # Apply time downsampling only if the output length is still valid
+        # Dynamically determine downsampling factor
+        max_downsample = 10  # Set a maximum limit to avoid excessive loss
+        downsample_factor = max(1, min(max_downsample, int(scale / 2)))
+        
+        # Ensure output is long enough before downsampling
         if coef.shape[-1] >= downsample_factor:
             coef = coef[..., ::downsample_factor]  # Downsample in time
+        else:
+            # If downsampling would remove too many samples, skip it for this scale
+            downsample_factor = 1  
 
 
         if out.dtype.kind != 'c':
             coef = coef.real
+        # Adjust shape to match input length
+        d = (coef.shape[-1] - data.shape[-1]) / 2.
+        if d > 0:
+            coef = coef[..., floor(d):-ceil(d)]
+        elif d < 0:
+            raise ValueError(f"Selected scale of {scale} too small. Consider reducing downsampling.")
+
         # transform axis is always -1 due to the data reshape above
         d = (coef.shape[-1] - data.shape[-1]) / 2.
         if d > 0:
