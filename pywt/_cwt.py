@@ -184,6 +184,9 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
             conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
 
         coef = - np.sqrt(scale) * np.diff(conv, axis=-1)
+        # Apply time downsampling
+        coef = coef[..., ::hop_size]  # Selecting every `hop_size`-th sample
+
         if out.dtype.kind != 'c':
             coef = coef.real
         # transform axis is always -1 due to the data reshape above
@@ -198,7 +201,7 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
             
             coef = coef.reshape(data_shape_pre)
             coef = coef.swapaxes(axis, -1)
-        coef = coef[::hop_size]    
+       "" coef = coef[::hop_size]    ""
         out[i, ...] = coef
 
     frequencies = scale2frequency(wavelet, scales, precision)
