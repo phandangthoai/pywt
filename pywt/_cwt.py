@@ -185,7 +185,7 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
 
         coef = - np.sqrt(scale) * np.diff(conv, axis=-1)
         # Apply time downsampling
-         coef = coef[..., ::hop_size]  # Selecting every `hop_size`-th sample 
+        coef = coef[..., ::hop_size]  # Selecting every `hop_size`-th sample 
 
 
         if out.dtype.kind != 'c':
