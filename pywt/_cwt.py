@@ -125,6 +125,7 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
 
     dt_out = dt_cplx if wavelet.complex_cwt else dt
     downsampled_length = len(data) // hop_size
+    data_sampled = np.empty((downsampled_length, 1))
     out = np.empty((np.size(scales), downsampled_length), dtype=dt_out)
     precision = 10
     int_psi, x = integrate_wavelet(wavelet, precision=precision)
@@ -192,20 +193,20 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
         if out.dtype.kind != 'c':
             coef = coef.real
         # Adjust shape to match input length
-        if hop_size == 1:
+        # if hop_size == 1:
             
-            # transform axis is always -1 due to the data reshape above
-            d = (coef.shape[-1] - data.shape[-1]) / 2.
-            if d > 0:
-                coef = coef[..., floor(d):-ceil(d)]
-            elif d < 0:
-                raise ValueError(
-                    f"Selected scale of {scale} too small.")
-            if data.ndim > 1:
-                # restore original data shape and axis position
-                
-                coef = coef.reshape(data_shape_pre)
-                coef = coef.swapaxes(axis, -1)
+        # transform axis is always -1 due to the data reshape above
+        d = (coef.shape[-1] - data_sampled.shape[-1]) / 2.
+        if d > 0:
+            coef = coef[..., floor(d):-ceil(d)]
+        elif d < 0:
+            raise ValueError(
+                f"Selected scale of {scale} too small.")
+        if data.ndim > 1:
+            # restore original data shape and axis position
+            
+            coef = coef.reshape(data_sampled)
+            coef = coef.swapaxes(axis, -1)
         out[i, ...] = coef
 
     frequencies = scale2frequency(wavelet, scales, precision)
