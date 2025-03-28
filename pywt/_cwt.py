@@ -124,7 +124,8 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
         raise AxisError("axis must be a scalar.")
 
     dt_out = dt_cplx if wavelet.complex_cwt else dt
-    out = np.empty((np.size(scales),) + ((data.shape)/hop_size).astype(int), dtype=dt_out)
+    downsampled_length = len(data) // hop_size
+    out = np.empty((np.size(scales), downsampled_length), dtype=dt_out)
     precision = 10
     int_psi, x = integrate_wavelet(wavelet, precision=precision)
     int_psi = np.conj(int_psi) if wavelet.complex_cwt else int_psi
