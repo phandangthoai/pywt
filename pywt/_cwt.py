@@ -185,9 +185,10 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
             conv = fftmodule.ifft(fft_wav * fft_data, axis=-1)
             conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
 
-        coef_temp = - np.sqrt(scale) * np.diff(conv, axis=-1)
+        # coef_temp = - np.sqrt(scale) * np.diff(conv, axis=-1)
+        coef = - np.sqrt(scale) * np.diff(conv, axis=-1)
         # Apply time downsampling
-        coef = coef_temp[::hop_size]  # Selecting every `hop_size`-th sample 
+        # coef = coef_temp[::hop_size]  # Selecting every `hop_size`-th sample 
 
 
         if out.dtype.kind != 'c':
