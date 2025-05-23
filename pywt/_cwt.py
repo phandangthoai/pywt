@@ -124,9 +124,12 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
         raise AxisError("axis must be a scalar.")
 
     dt_out = dt_cplx if wavelet.complex_cwt else dt
+
+    # out length of transform when applying down sampling
     downsampled_length = len(data) // hop_size
     data_sampled = np.empty((1, downsampled_length))
     out = np.empty((np.size(scales), downsampled_length), dtype=dt_out)
+    
     precision = 10
     int_psi, x = integrate_wavelet(wavelet, precision=precision)
     int_psi = np.conj(int_psi) if wavelet.complex_cwt else int_psi
@@ -186,15 +189,12 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
             conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
 
         coef_temp = - np.sqrt(scale) * np.diff(conv, axis=-1)
-        # coef = - np.sqrt(scale) * np.diff(conv, axis=-1)
+        
         # Apply time downsampling
         coef = coef_temp[::hop_size]  # Selecting every `hop_size`-th sample 
-
-
+        
         if out.dtype.kind != 'c':
             coef = coef.real
-        # Adjust shape to match input length
-        # if hop_size == 1:
             
         # transform axis is always -1 due to the data reshape above
         d = (coef.shape[-1] - data_sampled.shape[-1]) / 2.
@@ -205,7 +205,6 @@ def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', ax
                 f"Selected scale of {scale} too small.")
         if data.ndim > 1:
             # restore original data shape and axis position
-            
             coef = coef.reshape(data_sampled)
             coef = coef.swapaxes(axis, -1)
         out[i, ...] = coef
