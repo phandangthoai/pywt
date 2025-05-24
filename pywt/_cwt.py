@@ -34,7 +34,7 @@ except ImportError:
         return 2**ceil(np.log2(n))
 
 
-def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', axis=-1):
+def cwt_md(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', axis=-1):
     """
     cwt(data, scales, wavelet)
 
