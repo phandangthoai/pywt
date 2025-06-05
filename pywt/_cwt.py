@@ -24,9 +24,9 @@ def next_fast_len(n):
     return 2**ceil(np.log2(n))
 
 
-def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
+def cwt(data, scales, wavelet, hop_size=1, sampling_period=1., method='conv', axis=-1):
     """
-    cwt(data, scales, wavelet)
+    cwt(data, scales, wavelet, hop_size)
 
     One dimensional Continuous Wavelet Transform.
 
@@ -41,6 +41,14 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
         ``sampling_period`` is given in seconds.
     wavelet : Wavelet object or name
         Wavelet to use
+    hop_size : int
+        Specifies the down-sampling factor applied on temporal axis during the transform.
+        The output is sampled every hop_size samples, rather than at every consecutive sample.
+        For example:
+        A signal of length 1024 yields 1024 output samples when hop_size=1;
+        512 output samples when hop_size=2;
+        256 output samples when hop_size=4.
+        hop_size must be a positive integer (≥1).
     sampling_period : float
         Sampling period for the frequencies output (optional).
         The values computed for ``coefs`` are independent of the choice of
@@ -73,7 +81,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
 
     Notes
     -----
-    Size of coefficients arrays depends on the length of the input array and
+    Size of coefficients arrays depends on the length of the input array, the given hop_size and
     the length of given scales.
 
     Examples
@@ -83,7 +91,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
     >>> import matplotlib.pyplot as plt
     >>> x = np.arange(512)
     >>> y = np.sin(2*np.pi*x/32)
-    >>> coef, freqs=pywt.cwt(y,np.arange(1,129),'gaus1')
+    >>> coef, freqs=pywt.cwt(y,np.arange(1,129),1, 'gaus1')
     >>> plt.matshow(coef)
     >>> plt.show()
 
@@ -93,7 +101,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
     >>> t = np.linspace(-1, 1, 200, endpoint=False)
     >>> sig  = np.cos(2 * np.pi * 7 * t) + np.real(np.exp(-7*(t-0.4)**2)*np.exp(1j*2*np.pi*2*(t-0.4)))
     >>> widths = np.arange(1, 31)
-    >>> cwtmatr, freqs = pywt.cwt(sig, widths, 'mexh')
+    >>> cwtmatr, freqs = pywt.cwt(sig, widths,2, 'mexh')
     >>> plt.imshow(cwtmatr, extent=[-1, 1, 1, 31], cmap='PRGn', aspect='auto',
     ...            vmax=abs(cwtmatr).max(), vmin=-abs(cwtmatr).max())
     >>> plt.show()
@@ -112,9 +120,17 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
 
     if not np.isscalar(axis):
         raise AxisError("axis must be a scalar.")
+    # Ensure hop_size is a positive integer
+    if not isinstance(hop_size, int) or hop_size <= 0:
+        raise ValueError(f"Invalid hop_size: {hop_size}. It must be a positive integer.")
 
     dt_out = dt_cplx if wavelet.complex_cwt else dt
-    out = np.empty((np.size(scales),) + data.shape, dtype=dt_out)
+
+    # out length of transform when applying down sampling
+    downsampled_length = int(len(data) // hop_size)
+    data_sampled = np.empty((1, downsampled_length))
+    out = np.empty((np.size(scales), downsampled_length), dtype=dt_out)
+    
     precision = 10
     int_psi, x = integrate_wavelet(wavelet, precision=precision)
     int_psi = np.conj(int_psi) if wavelet.complex_cwt else int_psi
@@ -173,11 +189,16 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
             conv = np.fft.ifft(fft_wav * fft_data, axis=-1)
             conv = conv[..., :data.shape[-1] + int_psi_scale.size - 1]
 
-        coef = - np.sqrt(scale) * np.diff(conv, axis=-1)
+        coef_temp = - np.sqrt(scale) * np.diff(conv, axis=-1)
+        
+        # Apply time downsampling
+        coef = coef_temp[::int(hop_size)]  # Selecting every `hop_size`-th sample 
+        
         if out.dtype.kind != 'c':
             coef = coef.real
+            
         # transform axis is always -1 due to the data reshape above
-        d = (coef.shape[-1] - data.shape[-1]) / 2.
+        d = (coef.shape[-1] - data_sampled.shape[-1]) / 2.
         if d > 0:
             coef = coef[..., floor(d):-ceil(d)]
         elif d < 0:
@@ -185,7 +206,7 @@ def cwt(data, scales, wavelet, sampling_period=1., method='conv', axis=-1):
                 f"Selected scale of {scale} too small.")
         if data.ndim > 1:
             # restore original data shape and axis position
-            coef = coef.reshape(data_shape_pre)
+            coef = coef.reshape(data_sampled)
             coef = coef.swapaxes(axis, -1)
         out[i, ...] = coef
 
